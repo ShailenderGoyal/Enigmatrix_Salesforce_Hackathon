@@ -1,6 +1,7 @@
 import ChatSession from '../models/chatSession.model.js';
 import ChatMessage from '../models/chatMessage.model.js';
 import mongoose from 'mongoose';
+import axios from 'axios';
 
 // Replace this with your actual AI function
 const generateAIResponse = async (userMessage, session) => {
@@ -33,9 +34,9 @@ export const handleCreateSession = async (req, res) => {
     if (!title) {
       return res.status(400).json({ message: 'Title is required' });
     }
-
+    const {userId}=req.body;
     const session = new ChatSession({
-      userId: req.user.id,
+      userId: userId,
       title,
       knowledgeBaseId: knowledgeBaseId ? new mongoose.Types.ObjectId(knowledgeBaseId) : null
     });
@@ -50,8 +51,9 @@ export const handleCreateSession = async (req, res) => {
 export const handleGetSessionWithMessages = async (req, res) => {
   try {
     const session = await ChatSession.findById(req.params.id);
+    const {userId}=req.body;
     if (!session) return res.status(404).json({ message: 'Chat session not found' });
-    if (session.userId.toString() !== req.user.id) {
+    if (session.userId.toString() !== userId) {
       return res.status(403).json({ message: 'Not authorized to view this session' });
     }
 
@@ -79,10 +81,10 @@ export const handleAddMessage = async (req, res) => {
     if (!content) {
       return res.status(400).json({ message: 'Content is required' });
     }
-
+    const {userId}=req.body;
     const session = await ChatSession.findOne({
       _id: req.params.id,
-      userId: req.user.id
+      userId: userId
     });
 
     if (!session) {
@@ -97,37 +99,63 @@ export const handleAddMessage = async (req, res) => {
     });
 
     await userMessage.save();
-
+    
+    const title=session.title;
     session.lastMessageAt = new Date();
     await session.save();
-
-    res.status(201).json(userMessage);
-
-    // --- Optional: handle assistant reply asynchronously ---
-    try {
-      const aiReply = await generateAIResponse(content, session);
-
-      const assistantMessage = new ChatMessage({
-        sessionId: session._id,
-        role: 'assistant',
-        content: aiReply.content,
-        metadata: aiReply.metadata
+    
+    console.log("user chat saved successfully");
+    try
+    {
+      console.log(title);    
+      const aireposnse=await axios.post(`http://localhost:8000/ai/res`, {
+        prompt:`${content} with regard  to title ${title}`
       });
-
-      await assistantMessage.save();
-
-      session.lastMessageAt = new Date();
-      await session.save();
-    } catch (err) {
-      console.error('AI response error:', err);
-
-      await new ChatMessage({
+      const agentContent=aireposnse.data.ans;
+      // console.log(agentContent);
+      // console.log("here");
+      const agentMessage = new ChatMessage({
         sessionId: session._id,
         role: 'assistant',
-        content: 'Sorry, I encountered an error processing your request.',
-        metadata: { error: true }
-      }).save();
+        content:agentContent,
+        metadata
+      });
+  
+      await agentMessage.save();
+      return res.status(201).json({ans:aireposnse.data.ans});
+      
     }
+    catch(err)
+    {
+      return res.status(err.status || 500).json({msg:"error here",err});
+    }
+    
+
+    // // --- Optional: handle assistant reply asynchronously ---
+    // try {
+    //   const aiReply = await generateAIResponse(content, session);
+
+    //   const assistantMessage = new ChatMessage({
+    //     sessionId: session._id,
+    //     role: 'assistant',
+    //     content: aiReply.content,
+    //     metadata: aiReply.metadata
+    //   });
+
+    //   await assistantMessage.save();
+
+    //   session.lastMessageAt = new Date();
+    //   await session.save();
+    // } catch (err) {
+    //   console.error('AI response error:', err);
+
+    //   await new ChatMessage({
+    //     sessionId: session._id,
+    //     role: 'assistant',
+    //     content: 'Sorry, I encountered an error processing your request.',
+    //     metadata: { error: true }
+    //   }).save();
+    // }
 
   } catch (err) {
     res.status(400).json({ message: err.message });
