@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true
   },
-  username: {
+  name: {
     type: String,
     required: true,
     unique: true
@@ -17,12 +17,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  firstName: String,
-  lastName: String,
   jobTitle: String,
   department: String,
   company: String,
-  profilePicture: String,
+  profilePhoto: {
+      type: String,
+    },
   formData: Object,
   joinDate: {
     type: Date,

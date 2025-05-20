@@ -33,7 +33,7 @@ export async function handleRegisterUser(req, res) {
   
     } 
     catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      res.status(error.status || 500).json({ message: 'Server error',err:error });
     }
   }
 
