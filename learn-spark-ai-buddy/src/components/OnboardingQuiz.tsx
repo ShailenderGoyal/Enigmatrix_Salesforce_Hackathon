@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLearning, UserPreferences } from '@/contexts/LearningContext';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 // Define prebuilt path type
 interface PrebuiltPath {
@@ -100,6 +101,8 @@ const OnboardingQuiz: React.FC = () => {
   const [pathMode, setPathMode] = useState<'custom' | 'prebuilt'>('prebuilt');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const totalSteps = 3;
 
   const handleSelectPath = (pathId: string) => {
     setSelectedPath(pathId === selectedPath ? null : pathId);
@@ -181,11 +184,11 @@ const OnboardingQuiz: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-100px)]">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Let's Personalize Your Learning</CardTitle>
-          <CardDescription>
-            Step {step} of 3: {
+      <Card className="w-full max-w-md md:max-w-lg border-none shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Let's Personalize Your Learning</CardTitle>
+          <CardDescription className="text-lg mt-2">
+            Step {step} of {totalSteps}: {
               step === 1 ? 'Learning Style' : 
               step === 2 ? 'Your Interests' : 
               'Choose Learning Path'
@@ -195,170 +198,207 @@ const OnboardingQuiz: React.FC = () => {
         <CardContent>
           {step === 1 && (
             <>
-              <div className="mb-6">
-                <Label htmlFor="learning-style">How do you prefer to learn?</Label>
-                <RadioGroup 
-                  id="learning-style" 
-                  value={learningStyle} 
-                  onValueChange={setLearningStyle} 
-                  className="mt-3 space-y-3"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="visual" id="visual" />
-                    <Label htmlFor="visual" className="cursor-pointer">Visual (images, diagrams)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="verbal" id="verbal" />
-                    <Label htmlFor="verbal" className="cursor-pointer">Verbal (reading, writing)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="interactive" id="interactive" />
-                    <Label htmlFor="interactive" className="cursor-pointer">Interactive (practice, examples)</Label>
-                  </div>
-                </RadioGroup>
+              <div className="mb-8">
+                <h3 className="text-xl font-medium text-center mb-6">How do you prefer to learn?</h3>
+                <div className="grid grid-cols-3 gap-3 mt-4">
+                  <Button 
+                    type="button" 
+                    onClick={() => setLearningStyle('visual')}
+                    variant={learningStyle === 'visual' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      learningStyle === 'visual' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Visual</span>
+                    <span className="text-xs text-center opacity-80">(images, diagrams)</span>
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={() => setLearningStyle('verbal')}
+                    variant={learningStyle === 'verbal' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      learningStyle === 'verbal' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Verbal</span>
+                    <span className="text-xs text-center opacity-80">(reading, writing)</span>
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={() => setLearningStyle('interactive')}
+                    variant={learningStyle === 'interactive' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      learningStyle === 'interactive' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Interactive</span>
+                    <span className="text-xs text-center opacity-80">(practice, examples)</span>
+                  </Button>
+                </div>
               </div>
               
-              <Separator className="my-4" />
-              
-              <div className="mt-6">
-                <Label htmlFor="experience">What's your experience level?</Label>
-                <RadioGroup 
-                  id="experience" 
-                  value={experience} 
-                  onValueChange={setExperience} 
-                  className="mt-3 space-y-3"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="beginner" id="beginner" />
-                    <Label htmlFor="beginner" className="cursor-pointer">Beginner (new to the subject)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="intermediate" id="intermediate" />
-                    <Label htmlFor="intermediate" className="cursor-pointer">Intermediate (some knowledge)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="advanced" id="advanced" />
-                    <Label htmlFor="advanced" className="cursor-pointer">Advanced (experienced)</Label>
-                  </div>
-                </RadioGroup>
+              <div className="mt-8">
+                <h3 className="text-xl font-medium text-center mb-6">What's your experience level?</h3>
+                <div className="grid grid-cols-3 gap-3 mt-4">
+                  <Button 
+                    type="button" 
+                    onClick={() => setExperience('beginner')}
+                    variant={experience === 'beginner' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      experience === 'beginner' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Beginner</span>
+                    <span className="text-xs text-center opacity-80">(new to the subject)</span>
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={() => setExperience('intermediate')}
+                    variant={experience === 'intermediate' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      experience === 'intermediate' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Intermediate</span>
+                    <span className="text-xs text-center opacity-80">(some knowledge)</span>
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={() => setExperience('advanced')}
+                    variant={experience === 'advanced' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      experience === 'advanced' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Advanced</span>
+                    <span className="text-xs text-center opacity-80">(experienced)</span>
+                  </Button>
+                </div>
               </div>
             </>
           )}
           
           {step === 2 && (
             <>
-              <div className="mb-6">
-                <Label className="block mb-2">What topics interest you?</Label>
-                <ScrollArea className="h-[200px] pr-4 -mr-4">
-                  <div className="space-y-2">
-                    {INTEREST_OPTIONS.map((interest) => (
-                      <div key={interest.id} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`interest-${interest.id}`} 
-                          checked={selectedInterests.includes(interest.id)}
-                          onCheckedChange={() => handleInterestChange(interest.id)}
-                        />
-                        <Label 
-                          htmlFor={`interest-${interest.id}`}
-                          className="cursor-pointer"
-                        >
-                          {interest.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
+              <div className="mb-8">
+                <h3 className="text-xl font-medium text-center mb-6">What topics interest you?</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {INTEREST_OPTIONS.map((interest) => (
+                    <Button 
+                      key={interest.id}
+                      type="button" 
+                      onClick={() => handleInterestChange(interest.id)}
+                      variant={selectedInterests.includes(interest.id) ? 'default' : 'outline'}
+                      className={cn(
+                        "rounded-full px-4 py-2",
+                        selectedInterests.includes(interest.id) 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'hover:bg-secondary'
+                      )}
+                    >
+                      {interest.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
               
-              <Separator className="my-4" />
-              
-              <div className="mt-6">
-                <Label className="block mb-2">What are your learning goals?</Label>
-                <ScrollArea className="h-[200px] pr-4 -mr-4">
-                  <div className="space-y-2">
-                    {GOAL_OPTIONS.map((goal) => (
-                      <div key={goal.id} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`goal-${goal.id}`} 
-                          checked={selectedGoals.includes(goal.id)}
-                          onCheckedChange={() => handleGoalChange(goal.id)}
-                        />
-                        <Label 
-                          htmlFor={`goal-${goal.id}`}
-                          className="cursor-pointer"
-                        >
-                          {goal.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
+              <div className="mt-8">
+                <h3 className="text-xl font-medium text-center mb-6">What are your learning goals?</h3>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {GOAL_OPTIONS.map((goal) => (
+                    <Button 
+                      key={goal.id}
+                      type="button" 
+                      onClick={() => handleGoalChange(goal.id)}
+                      variant={selectedGoals.includes(goal.id) ? 'default' : 'outline'}
+                      className={cn(
+                        "rounded-full px-4 py-2",
+                        selectedGoals.includes(goal.id) 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'hover:bg-secondary'
+                      )}
+                    >
+                      {goal.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </>
           )}
           
           {step === 3 && (
             <>
-              <div className="mb-6">
-                <Label>How would you like to start?</Label>
-                <RadioGroup 
-                  value={pathMode} 
-                  onValueChange={(value: 'custom' | 'prebuilt') => setPathMode(value)}
-                  className="mt-3 space-y-3"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="prebuilt" id="prebuilt" />
-                    <Label htmlFor="prebuilt" className="cursor-pointer">Select from pre-built learning paths</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="custom" id="custom" />
-                    <Label htmlFor="custom" className="cursor-pointer">Create a custom learning path</Label>
-                  </div>
-                </RadioGroup>
+              <div className="mb-8">
+                <h3 className="text-xl font-medium text-center mb-6">How would you like to start?</h3>
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <Button 
+                    type="button" 
+                    onClick={() => setPathMode('prebuilt')}
+                    variant={pathMode === 'prebuilt' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      pathMode === 'prebuilt' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Pre-built</span>
+                    <span className="text-xs text-center opacity-80">(Select from learning paths)</span>
+                  </Button>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={() => setPathMode('custom')}
+                    variant={pathMode === 'custom' ? 'default' : 'outline'}
+                    className={cn(
+                      "h-auto py-4 px-2 rounded-xl flex flex-col items-center justify-center gap-2",
+                      pathMode === 'custom' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                    )}
+                  >
+                    <span className="text-lg">Custom</span>
+                    <span className="text-xs text-center opacity-80">(Create your own path)</span>
+                  </Button>
+                </div>
               </div>
               
-              <Separator className="my-4" />
-              
               {pathMode === 'prebuilt' ? (
-                <div className="mt-4">
-                  <Label className="mb-2 block">Choose a learning path:</Label>
-                  <ScrollArea className="h-[200px] pr-4 -mr-4">
-                    <div className="space-y-2">
-                      {PREBUILT_PATHS.map((path) => (
-                        <div
-                          key={path.id}
-                          className="flex items-start space-x-2 p-2 hover:bg-secondary/50 rounded-md transition-colors"
-                        >
-                          <Checkbox
-                            id={`onboarding-${path.id}`}
-                            checked={selectedPath === path.id}
-                            onCheckedChange={() => handleSelectPath(path.id)}
-                          />
-                          <div className="grid gap-1.5">
-                            <Label
-                              htmlFor={`onboarding-${path.id}`}
-                              className="text-sm font-medium leading-none cursor-pointer"
-                            >
-                              {path.title}
-                            </Label>
-                            <p className="text-xs text-muted-foreground">
-                              {path.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                <div className="mt-6">
+                  <h3 className="text-xl font-medium text-center mb-6">Choose a learning path:</h3>
+                  <div className="grid gap-4">
+                    {PREBUILT_PATHS.map((path) => (
+                      <Button
+                        key={path.id}
+                        type="button"
+                        onClick={() => handleSelectPath(path.id)}
+                        variant={selectedPath === path.id ? 'default' : 'outline'}
+                        className={cn(
+                          "h-auto py-3 px-4 rounded-xl w-full flex flex-col items-start justify-start gap-1 text-left",
+                          selectedPath === path.id ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'
+                        )}
+                      >
+                        <span className="text-base font-medium">{path.title}</span>
+                        <span className="text-xs opacity-80">{path.description}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <div className="mb-6">
-                  <Label htmlFor="topic">What would you like to learn about?</Label>
+                <div className="mb-6 mt-6">
+                  <h3 className="text-xl font-medium text-center mb-6">What would you like to learn about?</h3>
                   <Input
                     id="topic"
                     placeholder="e.g., Artificial Intelligence"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    className="mt-2"
+                    className="mt-2 rounded-xl p-6 text-center text-lg"
                   />
                 </div>
               )}
@@ -372,31 +412,37 @@ const OnboardingQuiz: React.FC = () => {
             </>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex flex-col items-center gap-4 pt-6">
+          <Button 
+            onClick={step < 3 ? () => setStep(step + 1) : handleSubmit}
+            disabled={isSubmitting || (step === 3 && pathMode === 'prebuilt' && !selectedPath) || (step === 3 && pathMode === 'custom' && !topic.trim())}
+            className="w-full rounded-full h-12 text-lg font-medium"
+          >
+            {isSubmitting ? 'Creating your path...' : step < 3 ? 'Continue' : 'Create Learning Path'}
+          </Button>
+          
           {step > 1 && (
             <Button 
-              variant="outline" 
+              variant="link" 
               onClick={() => setStep(step - 1)}
+              className="text-muted-foreground"
             >
-              Back
+              Go back
             </Button>
           )}
-          {step < 3 ? (
-            <Button 
-              onClick={() => setStep(step + 1)}
-              className="ml-auto"
-            >
-              Next
-            </Button>
-          ) : (
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSubmitting || (pathMode === 'prebuilt' && !selectedPath) || (pathMode === 'custom' && !topic.trim())}
-              className="ml-auto"
-            >
-              {isSubmitting ? 'Creating your path...' : 'Create Learning Path'}
-            </Button>
-          )}
+          
+          {/* Progress indicator */}
+          <div className="flex justify-center items-center gap-2 w-full mt-2">
+            {Array.from({ length: totalSteps }).map((_, index) => (
+              <div 
+                key={index} 
+                className={cn(
+                  "h-1 rounded-full transition-all",
+                  index + 1 <= step ? "bg-primary w-12" : "bg-secondary w-8"
+                )}
+              />
+            ))}
+          </div>
         </CardFooter>
       </Card>
     </div>
