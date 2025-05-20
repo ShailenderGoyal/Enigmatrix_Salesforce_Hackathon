@@ -2,10 +2,17 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 // import fileUploadRoutes from "./routes/fileUploadRoutes.js";
-import aiRoutes from "./routes/ai.routes.js";
+import aiRoutes from "./routes/ai.route.js";
 import connectMongodb from "./connection.js";
 import authRoutes from "./routes/auth.route.js"
-// import userRoutes from "./routes/userRoutes.js";
+import userRoutes from "./routes/user.route.js";
+
+// import chatRoutes from './routes/chatRoutes.js';
+// import noteRoutes from './routes/noteRoutes.js';
+// import knowledgeBaseRoutes from './routes/knowledgeBaseRoutes.js';
+// import preAssessmentRoutes from './routes/preAssessmentRoutes.js';
+
+
 dotenv.config();
 const PORT=process.env.PORT || 5000;
 const MONGO_URI=process.env.MONGO_URI;
@@ -30,6 +37,11 @@ app.use(cors(corsOptions));
 
 app.use('/auth',authRoutes);
 app.use("/ai", aiRoutes);
+app.use('/api/users', userRoutes);
+// app.use('/api/chat', chatRoutes);
+// app.use('/api/notes', noteRoutes);
+// app.use('/api/kb', knowledgeBaseRoutes);
+// app.use('/api/assessment', preAssessmentRoutes);
 // app.use("/api/upload", fileUploadRoutes);
 // app.use('/api/user', userRoutes);
 app.get("/",(req, res) => {res.status(200).json({"message":"backend working"});});

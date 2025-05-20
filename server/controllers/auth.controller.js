@@ -22,7 +22,7 @@ export async function handleRegisterUser(req, res) {
       const newUser = {
         name,
         email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       };
   
       // Save the new user to the database
@@ -49,7 +49,7 @@ export async function handleLoginUser(req, res) {
       }
   
       // Check if the password is correct
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user.passwordHash);
 
       if (!isMatch) {
         return res.status(400).json({ message: 'Invalid credentials' });
@@ -103,7 +103,7 @@ export async function handleLoginUser(req, res) {
     if (!user) {
       // console.log("User not found, creating new user");
       const hashedPassword = await bcrypt.hash("Google Login", 10);
-      user = await User.create({ name, email, password: hashedPassword,profilePhoto:picture });
+      user = await User.create({ name, email, passwordHash: hashedPassword,profilePhoto:picture });
       console.log("User created:", user);
     }
 
