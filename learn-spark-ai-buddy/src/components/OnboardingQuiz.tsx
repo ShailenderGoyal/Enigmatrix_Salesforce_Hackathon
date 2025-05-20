@@ -27,65 +27,80 @@ interface Option {
   label: string;
 }
 
-// Array of predefined interests
+// Array of predefined Salesforce interests
 const INTEREST_OPTIONS: Option[] = [
-  { id: 'ai', label: 'Artificial Intelligence' },
-  { id: 'ml', label: 'Machine Learning' },
-  { id: 'data-science', label: 'Data Science' },
-  { id: 'web-dev', label: 'Web Development' },
-  { id: 'mobile-dev', label: 'Mobile Development' },
-  { id: 'cloud', label: 'Cloud Computing' },
-  { id: 'cybersecurity', label: 'Cybersecurity' },
-  { id: 'blockchain', label: 'Blockchain' },
-  { id: 'game-dev', label: 'Game Development' },
-  { id: 'iot', label: 'Internet of Things' },
-  { id: 'robotics', label: 'Robotics' },
-  { id: 'design', label: 'UI/UX Design' },
+  { id: 'admin', label: 'Salesforce Administration' },
+  { id: 'dev', label: 'Salesforce Development' },
+  { id: 'agentforce', label: 'AgentForce' },
+  { id: 'apex', label: 'Apex Programming' },
+  { id: 'lwc', label: 'Lightning Web Components' },
+  { id: 'flows', label: 'Flow Builder' },
+  { id: 'integration', label: 'Salesforce Integration' },
+  { id: 'einstein', label: 'Einstein AI' },
+  { id: 'cpq', label: 'Salesforce CPQ' },
+  { id: 'marketing', label: 'Marketing Cloud' },
+  { id: 'commerce', label: 'Commerce Cloud' },
+  { id: 'experience', label: 'Experience Cloud' },
+  { id: 'data', label: 'Data Management' },
 ];
 
-// Array of predefined learning goals
+// Array of predefined Salesforce learning goals
 const GOAL_OPTIONS: Option[] = [
-  { id: 'career', label: 'Career Change' },
-  { id: 'skill', label: 'Skill Enhancement' },
-  { id: 'personal', label: 'Personal Interest' },
-  { id: 'academic', label: 'Academic Achievement' },
-  { id: 'certification', label: 'Professional Certification' },
-  { id: 'startup', label: 'Building a Startup' },
-  { id: 'project', label: 'Specific Project Completion' },
-  { id: 'knowledge', label: 'General Knowledge' },
+  { id: 'certification', label: 'Salesforce Certification' },
+  { id: 'career', label: 'Salesforce Career' },
+  { id: 'skill', label: 'Expand Salesforce Skills' },
+  { id: 'badges', label: 'Earn Trailhead Badges' },
+  { id: 'ranger', label: 'Become a Trailhead Ranger' },
+  { id: 'implementation', label: 'Implement Salesforce' },
+  { id: 'consulting', label: 'Salesforce Consulting' },
+  { id: 'project', label: 'Complete a Salesforce Project' },
+  { id: 'agentforce', label: 'Build with AgentForce' },
+  { id: 'app', label: 'Create AppExchange App' },
 ];
 
-// Array of prebuilt paths that users can choose from during onboarding
+// Array of prebuilt Salesforce Trailhead paths that users can choose from during onboarding
 const PREBUILT_PATHS: PrebuiltPath[] = [
   {
     id: 'path-1',
-    title: 'Introduction to Programming',
-    description: 'Learn the basics of programming concepts and logic',
-    category: 'Programming'
+    title: 'Salesforce Administrator',
+    description: 'Master Salesforce setup, security, and automation to become a certified Admin',
+    category: 'Administration'
   },
   {
     id: 'path-2',
-    title: 'Web Development Fundamentals',
-    description: 'HTML, CSS, JavaScript, and responsive design basics',
-    category: 'Programming'
+    title: 'Salesforce Developer',
+    description: 'Build custom applications using Apex, Lightning Web Components, and APIs',
+    category: 'Development'
   },
   {
     id: 'path-3',
-    title: 'Machine Learning Basics',
-    description: 'Core concepts in ML, including algorithms and model training',
-    category: 'Data Science'
+    title: 'AgentForce Fundamentals',
+    description: 'Learn to build AI agents that extend Salesforce capabilities',
+    category: 'AI'
   },
   {
     id: 'path-4',
-    title: 'Data Analysis with Python',
-    description: 'Learn to analyze and visualize data using Python libraries',
-    category: 'Data Science'
+    title: 'Salesforce Einstein AI',
+    description: 'Implement AI-powered predictions, recommendations, and automation',
+    category: 'AI'
   },
   {
     id: 'path-5',
-    title: 'Artificial Intelligence',
-    description: 'Explore AI concepts, applications, and future trends',
-    category: 'Technology'
+    title: 'Trailhead Ranger Journey',
+    description: 'Complete essential badges and projects to reach Ranger status',
+    category: 'Career'
+  },
+  {
+    id: 'path-6',
+    title: 'Service Cloud Specialist',
+    description: 'Master customer service tools, case management, and service automation',
+    category: 'Service'
+  },
+  {
+    id: 'path-7',
+    title: 'Sales Cloud Consultant',
+    description: 'Configure and optimize Sales Cloud for lead-to-cash management',
+    category: 'Sales'
   }
 ];
 
@@ -167,7 +182,7 @@ const OnboardingQuiz: React.FC = () => {
       }
       
       if (!finalTopic.trim()) {
-        finalTopic = 'Artificial Intelligence'; // Default fallback
+        finalTopic = 'Salesforce Administration'; // Default fallback
       }
       
       // Generate initial roadmap
@@ -186,7 +201,7 @@ const OnboardingQuiz: React.FC = () => {
     <div className="flex items-center justify-center min-h-[calc(100vh-100px)]">
       <Card className="w-full max-w-md md:max-w-lg border-none shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Let's Personalize Your Learning</CardTitle>
+          <CardTitle className="text-2xl font-bold">Let's Personalize Your Salesforce Journey</CardTitle>
           <CardDescription className="text-lg mt-2">
             Step {step} of {totalSteps}: {
               step === 1 ? 'Learning Style' : 
