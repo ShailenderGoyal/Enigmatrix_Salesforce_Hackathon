@@ -1,6 +1,7 @@
 import express from "express"
 const router=express.Router();
-import { handleSummary } from "../controllers/ai.controller.js";
+import { handleSummary,handleAiResponse } from "../controllers/ai.controller.js";
 router.post("/summarize",handleSummary);
+router.post("/res",handleAiResponse);
 
 export default router
