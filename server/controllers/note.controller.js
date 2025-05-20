@@ -5,8 +5,8 @@ export const handleGetNotes = async (req, res) => {
   try {
     const { tag, search, page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const query = { userId: req.user.id };
+    const {userId}=req.body;
+    const query = { userId: userId };
 
     if (tag) query.tags = tag;
     if (search) query.$text = { $search: search };
@@ -24,14 +24,14 @@ export const handleGetNotes = async (req, res) => {
 
 export const handleCreateNote = async (req, res) => {
   try {
-    const { title, content, userComment, originalMessageId, tags } = req.body;
+    const { title, content, userComment, originalMessageId, tags,userId} = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
     }
 
     const note = new Note({
-      userId: req.user.id,
+      userId: userId,
       title,
       content,
       userComment,
