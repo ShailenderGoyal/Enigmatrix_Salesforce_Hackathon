@@ -7,10 +7,10 @@ import connectMongodb from "./connection.js";
 import authRoutes from "./routes/auth.route.js"
 import userRoutes from "./routes/user.route.js";
 import noteRoutes from './routes/note.route.js';
+import chatRoutes from './routes/chat.route.js';
+import preAssessmentRoutes from './routes/preassement.route.js';
 
-// import chatRoutes from './routes/chatRoutes.js';
 // import knowledgeBaseRoutes from './routes/knowledgeBaseRoutes.js';
-// import preAssessmentRoutes from './routes/preAssessmentRoutes.js';
 
 
 dotenv.config();
@@ -39,9 +39,9 @@ app.use('/auth',authRoutes);
 app.use("/ai", aiRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notes', noteRoutes);
-// app.use('/api/chat', chatRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/assessment', preAssessmentRoutes);
 // app.use('/api/kb', knowledgeBaseRoutes);
-// app.use('/api/assessment', preAssessmentRoutes);
 // app.use("/api/upload", fileUploadRoutes);
 // app.use('/api/user', userRoutes);
 app.get("/",(req, res) => {res.status(200).json({"message":"backend working"});});

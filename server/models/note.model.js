@@ -9,5 +9,5 @@ const noteSchema = new mongoose.Schema({
   tags: [{ type: String }],
 }, { timestamps: true });
 
-const Note = mongoose.model("NOte", noteSchema);
+const Note = mongoose.model("Note", noteSchema);
 export default Note;
