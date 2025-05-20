@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useLearning } from '@/contexts/LearningContext';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-
+import favicon from './public/favicon.png'
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const { currentModule } = useLearning();
@@ -15,9 +15,12 @@ const Header: React.FC = () => {
     <header className="w-full px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 fixed top-0 left-0 z-10">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-xl text-primary">
-            BrainBoost
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+  <img src="/favicon.png" alt="Socrates logo" style={{ height: '24px', width: '24px' }} />
+  <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#123456' /* your primary color */ }}>
+    Socrates
+  </span>
+</div>
           {currentModule && (
             <span className="text-sm text-muted-foreground hidden md:inline-block">
               • {currentModule.title}

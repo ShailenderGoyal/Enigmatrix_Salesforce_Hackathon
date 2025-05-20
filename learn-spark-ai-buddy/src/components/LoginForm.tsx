@@ -11,7 +11,7 @@ const LoginForm: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">BrainBoost</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Socrates</CardTitle>
           <CardDescription className="text-center">
             Your AI-powered learning assistant
           </CardDescription>
