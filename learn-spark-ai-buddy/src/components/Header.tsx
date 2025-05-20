@@ -16,7 +16,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <span className="font-bold text-xl text-primary">
-            BrainBoost
+            Socrates
           </span>
           {currentModule && (
             <span className="text-sm text-muted-foreground hidden md:inline-block">
