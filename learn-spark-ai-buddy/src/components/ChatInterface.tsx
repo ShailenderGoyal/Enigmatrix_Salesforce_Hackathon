@@ -123,6 +123,8 @@ const ChatInterface: React.FC = () => {
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
+      console.log("message is "+ inputValue);
+      
       sendMessage(inputValue, currentModule?.id, activeSubtopicId || undefined);
       setInputValue('');
     }

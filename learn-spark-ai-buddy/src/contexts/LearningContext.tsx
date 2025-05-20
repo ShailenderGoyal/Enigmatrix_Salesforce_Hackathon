@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import axios from "axios";
 
 export interface Module {
   id: string;
@@ -188,9 +189,22 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     // If it's a user message, generate AI response
     if (sender === 'user') {
       // Mock AI response with delay
-      setTimeout(() => {
+      setTimeout(async () => {
         // Generate AI response based on the context
         let responseContent = '';
+        let res= await axios.post('http://localhost:8000/api/chat/sessions/682c5fd239ceff8e75aed3e5/messages', {
+    content:content,
+    userId:"682c56f24a0b3f3954f1e737"
+        }, {
+      headers: {
+        'Content-Type': 'application/json',
+        // Include auth token if required:
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3NzM3OTEzLCJleHAiOjE3NDc3NTU5MTN9.7EvL0l5jCzwi2347WP4mEDKkoeNh_MEIWdhcTIy65sQ`
+      }
+    });
+    responseContent=res.data.ans;    
+    console.log(res);
+
         
         if (content.toLowerCase().includes('summarize') || content.startsWith('[SUMMARY]')) {
           responseContent = 'Here\'s a summary of our discussion: We covered the key concepts of this topic including definitions, applications, and practical examples. The most important points were about how these concepts relate to real-world scenarios.';
@@ -206,9 +220,6 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
         } 
         else if (content.toLowerCase().includes('answer questions about the document')) {
           responseContent = 'I\'m ready to answer questions about the document you\'ve uploaded. What would you like to know? You can ask about specific sections, concepts, or request a summary of the main points.';
-        }
-        else {
-          responseContent = `That's a great question about ${content.substring(0, 30)}... Let me explain. AI systems work by processing large amounts of data through algorithms that can identify patterns and make predictions. Would you like me to go into more detail on any specific aspect?`;
         }
         
         const aiMessage: ChatMessage = {
