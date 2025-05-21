@@ -47,7 +47,8 @@ Socrates separates **how to teach** from **what to teach**:
 ### Progress & Motivation
 - **Detailed Progress Tracking**: Visual dashboards showing completion rates and competency development
 - **Gamified Elements**: Achievement systems to maintain engagement
-- **Motivational Nudges**: Automated reminders and encouragement based on learning patterns
+- **Automated Email Nudges**: Intelligent email reminders with personalized learning recommendations and progress updates
+- **Motivational Prompts**: In-app reminders and encouragement based on learning patterns
 - **Community & Expert Support**: Connect with peers or subject matter experts for collaborative learning
 
 ## Getting Started
@@ -134,10 +135,11 @@ socrates/
 │   ├── models/               # Database models
 │   ├── routes/               # API routes
 │   └── app.js                # Server entry point
-└── ai-backend/               # AI service (Python)
-    ├── models/               # AI models and adapters
-    ├── knowledge_bases/      # Domain-specific knowledge bases
-    └── app.py                # AI service entry point
+├── ai-backend/               # AI service (Python)
+│   ├── models/               # AI models and adapters
+│   ├── knowledge_bases/      # Domain-specific knowledge bases
+│   └── app.py                # AI service entry point
+└── email_nudge.js            # Email notification system for learning reminders
 ```
 
 ## Usage
@@ -175,6 +177,47 @@ AI_SERVICE_URL=http://localhost:5000
 PORT=5000
 MODEL_PATH=./models/teaching-llm
 VECTOR_DB_PATH=./vector_db
+```
+
+**Email Service**
+```
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+EMAIL_SERVICE=gmail
+```
+
+## Automated Email Notifications
+
+Socrates includes an intelligent email notification system that reminds users about their learning progress and provides personalized recommendations:
+
+### Features
+
+- **Personalized Content**: Dynamically generated emails based on user progress and learning patterns
+- **Progress Tracking**: Visual summary of certification progress and estimated completion time
+- **Focus Areas**: AI-identified topics that need completion or additional practice
+- **Community Resources**: Relevant community events, webinars, and support groups
+- **Salesforce-Specific**: Tailored for Salesforce learning paths with relevant branding and content
+
+### Configuration
+
+The email reminder system can be configured to run:
+
+- **On-demand**: Trigger email notifications manually
+- **Scheduled**: Use node-cron to schedule recurring reminders (e.g., weekly on Monday mornings)
+
+### Setup
+
+```bash
+# Install dependencies
+npm install nodemailer node-cron dotenv
+
+# Set up environment variables
+echo "EMAIL_USER=your_email@gmail.com" >> .env
+echo "EMAIL_PASSWORD=your_app_password" >> .env
+echo "EMAIL_SERVICE=gmail" >> .env
+
+# Run the email notification system
+node email_nudge.js
 ```
 
 ## Deployment
