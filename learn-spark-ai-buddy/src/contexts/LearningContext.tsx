@@ -50,6 +50,7 @@ interface LearningContextType {
   generateRoadmap: (topic: string) => Promise<void>;
   summarizeConversation: () => Promise<string>;
   reviseSubtopic: (subtopicId: string) => Promise<void>;
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
 // Mock Data 
@@ -236,6 +237,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  
   const updateNotes = (messageId: string, notes: string) => {
     setMessages(prev => 
       prev.map(message => 
@@ -376,6 +378,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
         setCurrentModule,
         setActiveSubtopicId,
         markSubtopicComplete,
+        setMessages,
         sendMessage,
         updateNotes,
         setPreferences,
@@ -399,6 +402,8 @@ export const useLearning = () => {
 
 
 export const useLearn = () => {
+      const context = useContext(LearningContext);
+    const { setMessages } = context;
   const updateNotes = async (messageId, content) => {
    try {
   const res = await axios.post(
@@ -418,6 +423,11 @@ export const useLearn = () => {
 
   console.log('Note saved:', res.data);
   // Optionally update your local state here if needed
+  setMessages(prevMessages => 
+      prevMessages.map(msg => 
+        msg.id === messageId ? { ...msg, notes: content } : msg
+      )
+    );
 } catch (error) {
   console.error('Error saving note:', error.response?.data || error.message);
 }
