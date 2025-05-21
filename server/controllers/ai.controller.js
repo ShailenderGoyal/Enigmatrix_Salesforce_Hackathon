@@ -11,7 +11,7 @@ export async function handleSummary(req, res) {
           const response = await axios.post(`${process.env.AI_SERVER}/summarize`, {
   "text": text,
   "max_length": 150,
-  "min_length": 40
+  "min_length": 20
 });
     // console.log(response);
     // console.log("response data");

@@ -320,22 +320,50 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const summarizeConversation = async (): Promise<string> => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simple mock implementation
-    const relevantMessages = activeSubtopicId 
-      ? messages.filter(m => m.subtopicId === activeSubtopicId)
-      : messages.slice(-10);
-    
-    if (relevantMessages.length <= 1) {
+const summarizeConversation = async (): Promise<string> => {
+  try {
+    const sessionId = '682c5fd239ceff8e75aed3e5';
+
+    // Step 1: Get combined content from session
+    const getRes = await axios.get(`http://localhost:8000/api/chat/${sessionId}/combined`,{
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3ODI0MDk1LCJleHAiOjE3NDc4NDIwOTV9.DQjAm3_fv5Zyi0ooGz_CI5j7cFFIZirUdhc2lU_TwMc`,
+      },
+    });
+    let combinedContent = getRes.data.combinedContent;
+
+    if (!combinedContent || combinedContent.trim().length < 10) {
       return "Not enough conversation to summarize yet.";
     }
+    console.log(combinedContent);
+
+    console.log(typeof(combinedContent));
+
+    // combinedContent="abcd";
+    // Step 2: Send combined content to summarization endpoint
+    const postRes = await axios.post('http://localhost:8000/ai/summarize', {
+      text: combinedContent
+    },{
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3ODI0MDk1LCJleHAiOjE3NDc4NDIwOTV9.DQjAm3_fv5Zyi0ooGz_CI5j7cFFIZirUdhc2lU_TwMc`,
+      },
+    });
     
-    // Mock summary - in a real app, this would use Gemini or similar
-    return "In this conversation, we discussed the fundamental concepts of AI, including its definition, history, and key differences from machine learning. We also covered types of AI systems and their applications in modern technology.";
-  };
+    console.log(postRes);
+    
+    // return combinedContent;
+    
+
+    // Step 3: Return summary from response
+    return postRes.data.result.summary || "Summary could not be generated.";
+  } catch (error) {
+    console.log("Error summarizing conversation:", error);
+    return "An error occurred while summarizing the conversation.";
+  }
+};
+
 
   const reviseSubtopic = async (subtopicId: string): Promise<void> => {
     const subtopic = modules
