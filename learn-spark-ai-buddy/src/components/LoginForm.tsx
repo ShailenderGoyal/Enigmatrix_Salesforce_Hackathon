@@ -19,7 +19,7 @@ const LoginForm: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <img 
-              src="/placeholder.svg" 
+              src="/placeholder.png" 
               alt="App Logo" 
               className="w-24 h-24 rounded-full bg-primary/10 p-2" 
             />
