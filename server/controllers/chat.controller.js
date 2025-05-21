@@ -161,3 +161,22 @@ export const handleAddMessage = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+export const getCombinedMessageContent = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    const messages = await ChatMessage.find({ sessionId }).sort({ timestamp: 1 });
+
+    if (!messages.length) {
+      return res.status(404).json({ message: 'No messages found for this session.' });
+    }
+
+    const combinedContent = messages.map(msg => msg.content).join(' ');
+
+    res.status(200).json({ sessionId, combinedContent });
+  } catch (error) {
+    console.error('Error fetching combined messages:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
