@@ -637,9 +637,21 @@ const ChatInterface: React.FC = () => {
   };
 
   const stopSpeaking = () => {
-    if (window.speechSynthesis) {
+    if (window.speechSynthesis && speechSynthRef.current) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+    }
+  };
+
+  const toggleSpeaking = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    } else {
+      // Find the last AI message and speak it
+      const lastAiMessage = [...messages].reverse().find(m => m.sender === 'ai');
+      if (lastAiMessage) {
+        handleSpeakMessage(lastAiMessage.content);
+      }
     }
   };
 
@@ -733,60 +745,60 @@ const ChatInterface: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Chat with AI Assistant</h2>
-        <div className="flex space-x-2">
+    <div className="h-full flex flex-col">
+      <div className="border-b border-border/40 py-1.5 px-3 flex justify-between items-center bg-muted/20">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-xs font-medium text-muted-foreground">AI Assistant</h2>
+          <div className="flex gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 text-xs px-2 rounded-sm"
+              onClick={handleSummarize}
+              disabled={isSummarizing || messages.length <= 1}
+            >
+              <FileText className="mr-1 h-3 w-3" />
+              {isSummarizing ? 'Summarizing...' : 'Summarize'}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 text-xs px-2 rounded-sm"
+              onClick={handleRevise}
+              disabled={isRevising || !activeSubtopicId}
+            >
+              <Book className="mr-1 h-3 w-3" />
+              {isRevising ? 'Revising...' : 'Revise'}
+            </Button>
+          </div>
+        </div>
+        <div className="flex gap-1">
           <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleSummarize}
-            disabled={isSummarizing || messages.length <= 1}
-          >
-            <FileText className="mr-1 h-4 w-4" />
-            {isSummarizing ? 'Summarizing...' : 'Summarize'}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRevise}
-            disabled={isRevising || !activeSubtopicId}
-          >
-            <Book className="mr-1 h-4 w-4" />
-            {isRevising ? 'Starting...' : 'Revise Topic'}
-          </Button>
-          <Button 
-            variant="outline" 
+            variant={isSpeaking ? "secondary" : "ghost"}
             size="sm"
-            onClick={handleQnA}
-            disabled={!selectedFile}
+            className="h-6 text-xs px-2 rounded-sm"
+            onClick={toggleSpeaking}
+            disabled={messages.length <= 1}
           >
-            <MessageCircle className="mr-1 h-4 w-4" />
-            Q&A on Document
+            <Volume className="mr-1 h-3 w-3" />
+            Read
           </Button>
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm"
-            onClick={handleSaveNotes}
-          >
-            <Save className="mr-1 h-4 w-4" />
-            Save Notes
-          </Button>
-          <Button
-            variant={isSpeaking ? "destructive" : "outline"}
-            size="sm"
+            className="h-6 text-xs px-2 rounded-sm"
             onClick={stopSpeaking}
             disabled={!isSpeaking}
           >
-            <VolumeX className="mr-1 h-4 w-4" />
-            Stop Audio
+            <VolumeX className="mr-1 h-3 w-3" />
+            Stop
           </Button>
         </div>
       </div>
       
-      <Card className="flex-1 overflow-hidden border p-0">
+      <div className="flex-1 overflow-hidden">
         <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto px-4 py-3">
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center text-muted-foreground">
                 <p>No messages yet. Start a conversation!</p>
@@ -996,7 +1008,7 @@ const ChatInterface: React.FC = () => {
             )}
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
