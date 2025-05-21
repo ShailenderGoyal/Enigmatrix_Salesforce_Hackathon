@@ -423,6 +423,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 
+
 // Define prebuilt path type
 interface PrebuiltPath {
   id: string;
@@ -483,6 +484,7 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['certification', 'career', 'badges'],
     keywordTriggers: ['admin', 'administrator', 'administration', 'manage', 'setup', 'security', 'user', 'new to salesforce', 'beginner'],
     initialChatMessage: "Welcome to the Salesforce Administrator learning path! 🌟 I've created a personalized roadmap to help you master Salesforce administration skills. Let's start with the fundamentals: What's your current familiarity with Salesforce?"
+
   },
   {
     id: 'path-2',
@@ -493,6 +495,7 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['certification', 'skill', 'project'],
     keywordTriggers: ['developer', 'development', 'code', 'coding', 'programming', 'apex', 'lwc', 'lightning', 'components'],
     initialChatMessage: "Welcome to the Salesforce Developer learning path! 💻 I've created a personalized roadmap to help you master Salesforce development. Let's get started: Have you done any programming before, and if so, which languages are you familiar with?"
+
   },
   {
     id: 'path-3',
@@ -503,6 +506,7 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['agentforce', 'skill', 'implementation'],
     keywordTriggers: ['agentforce', 'agent force', 'ai agent', 'agent', 'intern', 'artificial intelligence', 'generative ai', 'gpt'],
     initialChatMessage: "Welcome to the AgentForce Fundamentals learning path! 🤖 I've created a personalized roadmap to help you master building AI agents for Salesforce. Let's begin with the basics: What aspect of AgentForce are you most excited to learn about?"
+
   },
   {
     id: 'path-4',
@@ -513,6 +517,7 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['skill', 'implementation', 'project'],
     keywordTriggers: ['einstein', 'ai', 'artificial intelligence', 'machine learning', 'predictions', 'analytics', 'data science'],
     initialChatMessage: "Welcome to the Salesforce Einstein AI learning path! 🧠 I've created a personalized roadmap to help you master Einstein AI capabilities. Let's start: What's your experience with data science or AI concepts so far?"
+
   },
   {
     id: 'path-5',
@@ -523,16 +528,19 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['ranger', 'badges', 'skill'],
     keywordTriggers: ['trailhead', 'badges', 'ranger', 'career', 'certification', 'learning'],
     initialChatMessage: "Welcome to the Trailhead Ranger Journey! 🏆 I've created a personalized roadmap to help you earn badges and reach Ranger status. Let's get started: Have you completed any Trailhead badges before?"
+
   },
   {
     id: 'path-6',
     title: 'Service Cloud Specialist',
     description: 'Master customer service tools, case management, and service automation',
+
     category: 'Service',
     interestTags: ['admin', 'flows', 'data'],
     goalTags: ['certification', 'implementation', 'consulting'],
     keywordTriggers: ['service', 'service cloud', 'customer service', 'support', 'case management', 'help desk'],
     initialChatMessage: "Welcome to the Service Cloud Specialist learning path! 🛎️ I've created a personalized roadmap to help you master Salesforce Service Cloud. Let's begin: What type of customer service processes are you looking to implement or improve?"
+
   },
   {
     id: 'path-7',
@@ -573,6 +581,7 @@ const PREBUILT_PATHS: PrebuiltPath[] = [
     goalTags: ['skill', 'implementation', 'consulting'],
     keywordTriggers: ['flow', 'flow builder', 'automation', 'no code', 'low code', 'process', 'automate'],
     initialChatMessage: "Welcome to the Flow Builder Expert learning path! ⚙️ I've created a personalized roadmap to help you master Salesforce automation. Let's begin: What kinds of processes are you looking to automate in your organization?"
+
   }
 ];
 
@@ -592,6 +601,7 @@ const OnboardingQuiz: React.FC = () => {
   const [recommendedPaths, setRecommendedPaths] = useState<PrebuiltPath[]>([]);
   const [analyzingCustomPath, setAnalyzingCustomPath] = useState(false);
   const [customPathResult, setCustomPathResult] = useState<PrebuiltPath | null>(null);
+
   
   const totalSteps = 3;
 
@@ -753,6 +763,7 @@ const OnboardingQuiz: React.FC = () => {
       if (!finalTopic.trim()) {
         finalTopic = 'Salesforce Administration'; // Default fallback
         initialMessage = PREBUILT_PATHS[0].initialChatMessage || '';
+
       }
       
       // Generate initial roadmap with custom welcome message if available
@@ -946,6 +957,7 @@ const OnboardingQuiz: React.FC = () => {
                   </div>
                 </div>
               )}
+
             </>
           )}
           
@@ -1014,6 +1026,7 @@ const OnboardingQuiz: React.FC = () => {
                   )}
                   
                   {/* Show all paths */}
+
                   <div className="grid gap-4">
                     {PREBUILT_PATHS.map((path) => (
                       <Button
@@ -1041,6 +1054,7 @@ const OnboardingQuiz: React.FC = () => {
                     value={customQueryText}
                     onChange={(e) => setCustomQueryText(e.target.value)}
                     className="mt-2 rounded-xl p-4 text-center text-base min-h-[120px]"
+
                   />
                   
                   {analyzingCustomPath && (
@@ -1072,6 +1086,7 @@ const OnboardingQuiz: React.FC = () => {
           <Button 
             onClick={step < 3 ? () => setStep(step + 1) : handleSubmit}
             disabled={isSubmitting || (step === 3 && pathMode === 'prebuilt' && !selectedPath) || (step === 3 && pathMode === 'custom' && !customQueryText.trim() && !customPathResult)}
+
             className="w-full rounded-full h-12 text-lg font-medium"
           >
             {isSubmitting ? 'Creating your path...' : step < 3 ? 'Continue' : 'Create Learning Path'}
