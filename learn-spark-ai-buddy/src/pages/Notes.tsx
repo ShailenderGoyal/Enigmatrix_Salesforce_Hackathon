@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, Edit2, Calendar, Tag, BookOpen, MessageSquare, Star, StarOff } from 'lucide-react';
+import { Search, Edit2, Calendar, Tag, BookOpen, MessageSquare, Star, StarOff, RefreshCw } from 'lucide-react';
+import { readNotes, toggleFavorite, Note as UserNote } from '@/utils/clientNotesUtils';
+import { toast } from 'sonner';
 
 // Mock data for saved notes
 const MOCK_NOTES = [
@@ -67,57 +69,116 @@ const MOCK_NOTES = [
 ];
 
 const Notes: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [userNotes, setUserNotes] = useState<UserNote[]>([]);
   
-  // Filter notes based on search term and active tab
-  const filteredNotes = MOCK_NOTES.filter(note => {
+  // Load notes from localStorage on component mount and whenever the page is focused
+  useEffect(() => {
+    // Initial load of notes
+    const savedNotes = readNotes();
+    setUserNotes(savedNotes);
+    
+    // Function to reload notes when the window gets focus
+    const handleFocus = () => {
+      const refreshedNotes = readNotes();
+      setUserNotes(refreshedNotes);
+    };
+    
+    // Add event listener for focus events
+    window.addEventListener('focus', handleFocus);
+    
+    // Clean up event listener
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // Combine mock notes and user notes
+  const allNotes = [...MOCK_NOTES, ...userNotes];
+
+  // Filter notes based on search, favorites and active tab
+  const filteredNotes = allNotes.filter(note => {
+    // First check if it matches the search term
     const matchesSearch = 
-      note.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.subtopic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      searchTerm === '' || 
       note.questionContent.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.responseContent.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.noteContent.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    if (activeTab === 'all') return matchesSearch;
-    if (activeTab === 'favorites') return matchesSearch && note.isFavorite;
+    // Then check if it should be filtered by favorites
+    const matchesFavorite = !showFavoritesOnly || note.isFavorite;
     
-    // Filter by topic tab
-    return matchesSearch && note.topic.toLowerCase().includes(activeTab.toLowerCase());
+    // Finally check if it matches the active tab
+    const matchesTab = 
+      activeTab === 'all' || 
+      note.topic.toLowerCase().includes(activeTab.toLowerCase());
+      
+    return matchesSearch && matchesFavorite && matchesTab;
   });
-  
-  // Get unique topics for tabs
-  const topics = Array.from(new Set(MOCK_NOTES.map(note => note.topic)));
+
+  // Get unique topics for tabs from both mock and user notes
+  const topics = Array.from(new Set(allNotes.map(note => note.topic)));
   
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       
       <div className="container mx-auto pt-20 pb-6 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Learning Notes</h1>
-          <div className="flex items-center gap-3">
-            <div className="relative w-64">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <BookOpen className="h-6 w-6" />
+            My Notes
+          </h1>
+          <div className="flex space-x-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                type="text"
+                type="search"
                 placeholder="Search notes..."
-                className="pl-8"
+                className="pl-8 w-[200px] sm:w-[300px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="sm">
-              Export Notes
+            <Button
+              variant="outline"
+              size="sm"
+              className={`${showFavoritesOnly ? 'bg-amber-100 text-amber-700 border-amber-300' : ''}`}
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            >
+              {showFavoritesOnly ? (
+                <>
+                  <Star className="mr-1 h-4 w-4 fill-amber-500" />
+                  Favorites
+                </>
+              ) : (
+                <>
+                  <Star className="mr-1 h-4 w-4" />
+                  Show Favorites
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const refreshedNotes = readNotes();
+                setUserNotes(refreshedNotes);
+                toast.success('Notes refreshed');
+              }}
+            >
+              <RefreshCw className="mr-1 h-4 w-4" />
+              Refresh
             </Button>
           </div>
         </div>
         
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex flex-wrap">
             <TabsTrigger value="all">All Notes</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
             {topics.map(topic => (
               <TabsTrigger key={topic} value={topic}>
                 {topic}
@@ -162,6 +223,19 @@ const Notes: React.FC = () => {
                           size="sm" 
                           variant="ghost" 
                           className="h-8 w-8 p-0 rounded-full text-amber-500"
+                          onClick={() => {
+                            // For user notes saved in localStorage
+                            if (note.id.startsWith('note-') && !note.id.startsWith('note-1')) {
+                              // Use the toggleFavorite utility function
+                              const updatedNotes = toggleFavorite(note.id);
+                              
+                              // Update the state
+                              setUserNotes(updatedNotes);
+                              
+                              // Update the note in the current view
+                              note.isFavorite = !note.isFavorite;
+                            }
+                          }}
                         >
                           {note.isFavorite ? <Star className="h-4 w-4 fill-amber-500" /> : <StarOff className="h-4 w-4" />}
                           <span className="sr-only">{note.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>

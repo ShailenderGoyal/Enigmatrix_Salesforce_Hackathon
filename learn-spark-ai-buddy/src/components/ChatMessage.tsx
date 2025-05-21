@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useLearning, ChatMessage as ChatMessageType,useLearn } from '@/contexts/LearningContext';
+import { useLearning, ChatMessage as ChatMessageType, useLearn } from '@/contexts/LearningContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { Check, Save } from 'lucide-react';
+import { addNote, generateTags } from '@/utils/clientNotesUtils';
+import { toast } from 'sonner';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -15,13 +17,48 @@ interface ChatMessageProps {
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const { updateNotes } = useLearn();
   const { user } = useAuth();
+  const { currentModule, activeSubtopicId } = useLearning(); // Move this to the top level
   const [isEditing, setIsEditing] = useState(false);
   const [noteContent, setNoteContent] = useState(message.notes || '');
 
   const handleSaveNote = () => {
-    console.log(noteContent);
-    
+    // Save to LearningContext for current session
     updateNotes(message.id, noteContent);
+    
+    // Save to localStorage for persistent storage
+    if (message.sender === 'ai' && noteContent.trim()) {
+      // Get current date as a formatted string
+      const currentDate = format(new Date(), 'yyyy-MM-dd');
+      
+      // Get the subtopic from the current module and active subtopic ID
+      const subtopic = currentModule?.subtopics.find(s => s.id === activeSubtopicId);
+      
+      // Create tags from the message content
+      const tags = generateTags(message.content);
+      
+      // Create a unique ID for the note
+      const noteId = `note-${Date.now()}`;
+      
+      // Create the note object
+      const newNote = {
+        id: noteId,
+        topic: currentModule?.title || 'General',
+        subtopic: subtopic?.title || 'Uncategorized',
+        date: currentDate,
+        questionContent: message.content.includes('?') 
+          ? message.content.split('?')[0] + '?' 
+          : message.content.substring(0, 100) + '...',
+        responseContent: message.content,
+        noteContent: noteContent,
+        tags: tags,
+        isFavorite: false
+      };
+      
+      // Add the note to localStorage
+      addNote(newNote);
+      toast.success('Note saved successfully!');
+    }
+    
     setIsEditing(false);
   };
 
