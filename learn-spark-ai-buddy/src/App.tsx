@@ -10,8 +10,20 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LearningProvider } from "./contexts/LearningContext";
+import { useEffect } from "react";
+import { initializeNotesStorage } from "./utils/clientNotesUtils";
 
 const queryClient = new QueryClient();
+
+// Component to initialize notes storage
+const AppInitializer = () => {
+  useEffect(() => {
+    // Initialize notes storage when the app loads
+    initializeNotesStorage();
+  }, []);
+  
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -19,6 +31,7 @@ const App = () => (
       <AuthProvider>
         <LearningProvider>
           <TooltipProvider>
+            <AppInitializer />
             <Toaster />
             <Sonner />
             <BrowserRouter>

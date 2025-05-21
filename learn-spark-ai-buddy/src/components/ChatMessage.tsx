@@ -33,8 +33,37 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       // Get the subtopic from the current module and active subtopic ID
       const subtopic = currentModule?.subtopics.find(s => s.id === activeSubtopicId);
       
-      // Create tags from the message content
-      const tags = generateTags(message.content);
+      // Create tags from the message content - include topic keywords if available
+      let tags = generateTags(message.content);
+      if (currentModule?.title) {
+        // Add module title as a tag if not already present
+        const moduleTag = currentModule.title.toLowerCase().replace(/\s+/g, '-');
+        if (!tags.includes(moduleTag)) {
+          tags.unshift(moduleTag); // Add module title as first tag
+        }
+      }
+      
+      // Extract a better title from the message if possible
+      let questionTitle = '';
+      if (message.content.includes('?')) {
+        // If there's a question mark, use the text before it as title
+        const questionMatch = message.content.match(/([^.!?]+\?)/); 
+        if (questionMatch && questionMatch[0]) {
+          questionTitle = questionMatch[0].trim();
+          // Limit length
+          if (questionTitle.length > 100) {
+            questionTitle = questionTitle.substring(0, 97) + '...';
+          }
+        }
+      }
+      
+      if (!questionTitle) {
+        // Fallback: use first sentence or truncate
+        const firstSentence = message.content.split(/[.!?]\s/)[0];
+        questionTitle = firstSentence.length > 100 ? 
+          firstSentence.substring(0, 97) + '...' : 
+          firstSentence;
+      }
       
       // Create a unique ID for the note
       const noteId = `note-${Date.now()}`;
@@ -45,9 +74,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         topic: currentModule?.title || 'General',
         subtopic: subtopic?.title || 'Uncategorized',
         date: currentDate,
-        questionContent: message.content.includes('?') 
-          ? message.content.split('?')[0] + '?' 
-          : message.content.substring(0, 100) + '...',
+        questionContent: questionTitle,
         responseContent: message.content,
         noteContent: noteContent,
         tags: tags,

@@ -1,0 +1,184 @@
+@startuml Socrates_Platform_Component_Diagram
+
+' Styling
+!define RECTANGLE_BORDERCOLOR #2C3E50
+!define CLIENT_BGCOLOR #3498DB
+!define SERVER_BGCOLOR #16A085
+!define AI_BGCOLOR #9B59B6
+!define DATABASE_BGCOLOR #E74C3C
+!define EXTERNAL_BGCOLOR #F39C12
+
+skinparam component {
+  BackgroundColor<<Client>> CLIENT_BGCOLOR
+  BorderColor<<Client>> RECTANGLE_BORDERCOLOR
+  FontColor<<Client>> white
+  
+  BackgroundColor<<Server>> SERVER_BGCOLOR
+  BorderColor<<Server>> RECTANGLE_BORDERCOLOR
+  FontColor<<Server>> white
+  
+  BackgroundColor<<AI>> AI_BGCOLOR
+  BorderColor<<AI>> RECTANGLE_BORDERCOLOR
+  FontColor<<AI>> white
+  
+  BackgroundColor<<Database>> DATABASE_BGCOLOR
+  BorderColor<<Database>> RECTANGLE_BORDERCOLOR
+  FontColor<<Database>> white
+  
+  BackgroundColor<<External>> EXTERNAL_BGCOLOR
+  BorderColor<<External>> RECTANGLE_BORDERCOLOR
+  FontColor<<External>> white
+}
+
+' Main Components
+package "Frontend (React)" <<Client>> {
+  [App.tsx] as App
+  
+  package "Pages" {
+    [Dashboard.tsx] as Dashboard
+    [Notes.tsx] as Notes
+    [Index.tsx] as Index
+  }
+  
+  package "Components" {
+    [Header.tsx] as Header
+    [ChatInterface.tsx] as ChatInterface
+    [OnboardingQuiz.tsx] as OnboardingQuiz
+    [ProgressTracker.tsx] as ProgressTracker
+    [PrebuiltLearningPaths.tsx] as LearningPaths
+    [VisualLearningPath] as VisualPath
+    
+    package "UI Components" {
+      [UI Elements] as UIElements
+    }
+  }
+  
+  package "Contexts" {
+    [State Management] as StateContext
+  }
+  
+  package "Utils" {
+    [clientNotesUtils.ts] as ClientNotes
+    [notesUtils.ts] as NotesUtils
+  }
+  
+  package "Hooks" {
+    [Custom React Hooks] as CustomHooks
+  }
+  
+  package "Data" {
+    [userNotes.json] as UserNotes
+  }
+}
+
+package "Backend (Node.js)" <<Server>> {
+  [index.js] as ServerEntry
+  [connection.js] as DBConnection
+  
+  package "Controllers" {
+    [API Controllers] as APIControllers
+  }
+  
+  package "Routes" {
+    [API Routes] as APIRoutes
+  }
+  
+  package "Models" {
+    [Database Models] as DBModels
+  }
+  
+  package "Middlewares" {
+    [Auth Middleware] as AuthMiddleware
+  }
+}
+
+package "AI Backend" <<AI>> {
+  [AI Service Entry] as AIEntry
+  
+  package "Models" {
+    [LLM Integration] as LLM
+    [Multimodal Processing] as Multimodal
+  }
+  
+  package "RAG Framework" {
+    [Knowledge Retriever] as KnowledgeRetriever
+    [Content Generator] as ContentGenerator
+  }
+}
+
+package "Databases" <<Database>> {
+  database "MongoDB" {
+    [User Data] as UserDB
+    [Learning Progress] as ProgressDB
+  }
+  
+  database "Vector Database" {
+    [Knowledge Embeddings] as VectorDB
+  }
+}
+
+package "External Services" <<External>> {
+  [Gemini API] as Gemini
+}
+
+' Relationships
+' Frontend internal connections
+App --> Dashboard
+App --> Notes
+App --> Index
+App --> Header
+Dashboard --> ChatInterface
+Dashboard --> ProgressTracker
+Dashboard --> LearningPaths
+Dashboard --> VisualPath
+Notes --> ClientNotes
+Notes --> NotesUtils
+Notes --> UserNotes
+ChatInterface --> OnboardingQuiz
+Components --> UIElements
+App --> StateContext
+App --> CustomHooks
+
+' Backend internal connections
+ServerEntry --> APIRoutes
+ServerEntry --> DBConnection
+APIRoutes --> APIControllers
+APIControllers --> DBModels
+ServerEntry --> AuthMiddleware
+
+' AI Backend internal connections
+AIEntry --> LLM
+AIEntry --> Multimodal
+AIEntry --> KnowledgeRetriever
+KnowledgeRetriever --> ContentGenerator
+LLM --> ContentGenerator
+
+' Cross-component connections
+APIControllers --> DBConnection
+DBModels ..> UserDB
+DBModels ..> ProgressDB
+KnowledgeRetriever ..> VectorDB
+Multimodal ..> Gemini
+
+' Frontend to Backend connections
+App ..> APIRoutes : HTTP/REST API
+ChatInterface ..> APIRoutes : HTTP/REST API
+Notes ..> APIRoutes : HTTP/REST API
+Dashboard ..> APIRoutes : HTTP/REST API
+
+' Backend to AI connections
+APIControllers ..> AIEntry : API Calls
+
+' Legend
+legend right
+  |= Type |= Description |
+  |<back:CLIENT_BGCOLOR>  </back>| Frontend Components |
+  |<back:SERVER_BGCOLOR>  </back>| Backend Components |
+  |<back:AI_BGCOLOR>  </back>| AI Components |
+  |<back:DATABASE_BGCOLOR>  </back>| Database Components |
+  |<back:EXTERNAL_BGCOLOR>  </back>| External Services |
+endlegend
+
+title Socrates: AI-Assisted Onboarding & Corporate Training Platform - Component Diagram
+
+@enduml
