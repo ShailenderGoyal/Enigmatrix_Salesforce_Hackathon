@@ -457,8 +457,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ChatMessage from './ChatMessage';
-import { ArrowUp, MessageCircle, CircleX, FileText, Book, Mic, Image, Save, Volume, VolumeX, HelpCircle, Send, Users } from 'lucide-react';
+import { ArrowUp, MessageCircle, CircleX, FileText, Book, Mic, Image, Save, Volume, VolumeX, HelpCircle, Send, Users, MessageSquare, ListChecks, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const ChatInterface: React.FC = () => {
   const { messages, sendMessage, currentModule, activeSubtopicId, summarizeConversation, reviseSubtopic } = useLearning();
@@ -474,6 +475,11 @@ const ChatInterface: React.FC = () => {
 
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  
+  // Chat tabs state
+  const [activeTab, setActiveTab] = useState<string>('chat');
+  const [summaryContent, setSummaryContent] = useState<string>('');
+  const [revisionContent, setRevisionContent] = useState<string>('');
   
   // Feedback section state
   const [showFeedback, setShowFeedback] = useState(false);
@@ -659,8 +665,9 @@ const ChatInterface: React.FC = () => {
     setIsSummarizing(true);
     try {
       const summary = await summarizeConversation();
+      setSummaryContent(summary);
+      setActiveTab('summary'); // Switch to summary tab
       toast.success('Summary generated!');
-      sendMessage(`[SUMMARY] ${summary}`, currentModule?.id, activeSubtopicId || undefined);
     } catch (error) {
       toast.error('Failed to generate summary');
     } finally {
@@ -668,18 +675,53 @@ const ChatInterface: React.FC = () => {
     }
   };
 
+  const findActiveSubtopic = () => {
+    if (!currentModule || !activeSubtopicId) return null;
+    return currentModule.subtopics.find(s => s.id === activeSubtopicId);
+  };
+  
   const handleRevise = async () => {
-    if (!activeSubtopicId) {
+    if (!activeSubtopicId || !currentModule) {
       toast.error('Please select a subtopic to revise');
+      return;
+    }
+    
+    const subtopic = findActiveSubtopic();
+    if (!subtopic) {
+      toast.error('Selected subtopic not found');
       return;
     }
     
     setIsRevising(true);
     try {
+      // Create revision content based on the selected subtopic
+      setRevisionContent(
+        `# ${subtopic.title} - Revision Guide\n\n` +
+        `## Key Concepts\n\n` +
+        subtopic.concepts.map(concept => `- ${concept}\n`).join('') +
+        `\n## Recommended Learning Approach\n\n` +
+        `- Break down complex topics into smaller, manageable parts\n` +
+        `- Create visual aids or diagrams to represent relationships\n` +
+        `- Test your understanding by explaining concepts in your own words\n\n` +
+        `## Suggested Practice Exercises\n\n` +
+        `1. Create flashcards for key terms and definitions\n` +
+        `2. Write a summary of each concept in your own words\n` +
+        `3. Create a mind map connecting all the concepts\n` +
+        `4. Teach these concepts to someone else\n\n` +
+        `## Learning Progress Checklist\n\n` +
+        subtopic.concepts.map(concept => `- [ ] ${concept}\n`).join('') +
+        `\n## Apply Your Knowledge\n\n` +
+        `Challenge yourself to apply these concepts to real-world scenarios.`
+      );
+      
+      // Now start the revision process in the chat
       await reviseSubtopic(activeSubtopicId);
-      toast.success('Revision started!');
+      
+      // Switch to revision tab
+      setActiveTab('revision');
+      toast.success('Revision guide created!');
     } catch (error) {
-      toast.error('Failed to start revision');
+      toast.error('Failed to create revision guide');
     } finally {
       setIsRevising(false);
     }
@@ -751,24 +793,36 @@ const ChatInterface: React.FC = () => {
           <h2 className="text-xs font-medium text-muted-foreground">AI Assistant</h2>
           <div className="flex gap-1">
             <Button 
-              variant="ghost" 
+              variant={activeTab === 'summary' ? "secondary" : "ghost"} 
               size="sm" 
               className="h-6 text-xs px-2 rounded-sm"
-              onClick={handleSummarize}
+              onClick={() => {
+                if (summaryContent && !isSummarizing) {
+                  setActiveTab(activeTab === 'summary' ? 'chat' : 'summary');
+                } else {
+                  handleSummarize();
+                }
+              }}
               disabled={isSummarizing || messages.length <= 1}
             >
               <FileText className="mr-1 h-3 w-3" />
-              {isSummarizing ? 'Summarizing...' : 'Summarize'}
+              {isSummarizing ? 'Summarizing...' : activeTab === 'summary' ? 'Chat' : 'Summarize'}
             </Button>
             <Button 
-              variant="ghost" 
+              variant={activeTab === 'revision' ? "secondary" : "ghost"}
               size="sm" 
               className="h-6 text-xs px-2 rounded-sm"
-              onClick={handleRevise}
+              onClick={() => {
+                if (revisionContent && !isRevising) {
+                  setActiveTab(activeTab === 'revision' ? 'chat' : 'revision');
+                } else {
+                  handleRevise();
+                }
+              }}
               disabled={isRevising || !activeSubtopicId}
             >
               <Book className="mr-1 h-3 w-3" />
-              {isRevising ? 'Revising...' : 'Revise'}
+              {isRevising ? 'Creating...' : activeTab === 'revision' ? 'Chat' : 'Revise'}
             </Button>
           </div>
         </div>
@@ -797,45 +851,125 @@ const ChatInterface: React.FC = () => {
       </div>
       
       <div className="flex-1 overflow-hidden">
-        <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto px-4 py-3">
-            {messages.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                <p>No messages yet. Start a conversation!</p>
+        <div className="flex flex-col h-full">          
+          {/* Main content area with tabs */}
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === 'chat' ? (
+              // Chat Messages Tab
+              <div className="px-4 py-3">
+                {messages.length === 0 ? (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    <p>No messages yet. Start a conversation!</p>
+                  </div>
+                ) : (
+                  <>
+                    {messages.map((message) => (
+                      <div key={message.id}>
+                        <ChatMessage message={message} />
+                        {message.sender === 'ai' && (
+                          <div className="ml-10 mb-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handleSpeakMessage(message.content)}
+                            >
+                              <Volume className="mr-1 h-4 w-4" />
+                              {isSpeaking ? 'Speaking...' : 'Listen'}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                    
+                    {/* Typing indicator (shown when AI is "thinking") */}
+                    {messages.length > 0 && messages[messages.length - 1].sender === 'user' && (
+                      <div className="flex items-center ml-10 mb-4">
+                        <div className="bg-secondary/20 py-2 px-4 rounded-full typing-indicator">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            ) : (
-              <>
-                {messages.map((message) => (
-                  <div key={message.id}>
-                    <ChatMessage message={message} />
-                    {message.sender === 'ai' && (
-                      <div className="ml-10 mb-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => handleSpeakMessage(message.content)}
-                        >
-                          <Volume className="mr-1 h-4 w-4" />
-                          {isSpeaking ? 'Speaking...' : 'Listen'}
-                        </Button>
+            ) : activeTab === 'summary' ? (
+              // Summary Tab
+              <div className="p-4">
+                <div className="border rounded-lg p-4 bg-card">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-medium flex items-center"> 
+                      <FileText className="mr-2 h-4 w-4 text-primary" />
+                      Conversation Summary
+                    </h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab('chat')}
+                    >
+                      <MessageSquare className="mr-1 h-4 w-4" />
+                      Back to Chat
+                    </Button>
+                  </div>
+                  <div className="prose prose-sm max-w-none">
+                    {summaryContent ? (
+                      <div className="whitespace-pre-wrap text-muted-foreground">
+                        {summaryContent}
+                      </div>
+                    ) : (
+                      <div className="text-center p-8 text-muted-foreground">
+                        <p>No summary generated yet.</p>
                       </div>
                     )}
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
-                
-                {/* Typing indicator (shown when AI is "thinking") */}
-                {messages.length > 0 && messages[messages.length - 1].sender === 'user' && (
-                  <div className="flex items-center ml-10 mb-4">
-                    <div className="bg-secondary/20 py-2 px-4 rounded-full typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
+                </div>
+              </div>
+            ) : (
+              // Revision Tab
+              <div className="p-4">
+                <div className="border rounded-lg p-4 bg-card">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-medium flex items-center"> 
+                      <Book className="mr-2 h-4 w-4 text-primary" />
+                      Revision Guide
+                    </h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab('chat')}
+                    >
+                      <MessageSquare className="mr-1 h-4 w-4" />
+                      Back to Chat
+                    </Button>
                   </div>
-                )}
-              </>
+                  {revisionContent ? (
+                    <div className="mt-4">
+                      <div className="prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-muted-foreground">
+                          {revisionContent}
+                        </div>
+                      </div>
+                      <div className="mt-6 flex justify-center">
+                        <Button 
+                          variant="default"
+                          className="flex items-center gap-2"
+                          onClick={() => setActiveTab('chat')}
+                        >
+                          <ListChecks className="h-4 w-4" />
+                          Start Practicing in Chat
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center p-8 text-muted-foreground">
+                      <p>No revision guide created yet.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
           

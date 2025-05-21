@@ -53,6 +53,7 @@ import PrebuiltLearningPaths from '@/components/PrebuiltLearningPaths';
 import GameProgress from '@/components/GameProgress';
 import { VisualLearningPath, CustomPathCreator } from '@/components/VisualLearningPath';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLearning } from '@/contexts/LearningContext';
 import OnboardingQuiz from '@/components/OnboardingQuiz';
 import { Button } from '@/components/ui/button';
 import { Bell, ChevronDown, ChevronRight } from 'lucide-react';
@@ -61,8 +62,19 @@ import { toast } from 'sonner';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { modules } = useLearning();
   const [showNudge, setShowNudge] = useState(false);
   const [pathCollapsed, setPathCollapsed] = useState(true);
+  
+  // Calculate overall progress based on all modules
+  const calculateOverallProgress = () => {
+    if (!modules || modules.length === 0) return 0;
+    
+    const totalProgress = modules.reduce((sum, module) => sum + module.progress, 0);
+    return Math.round(totalProgress / modules.length);
+  };
+  
+  const overallProgress = calculateOverallProgress();
   
   // Show a motivational nudge after 15 seconds of inactivity
   useEffect(() => {
@@ -128,23 +140,32 @@ const Dashboard: React.FC = () => {
         )}
         
         {/* Collapsible Learning Path at Top */}
-        <div className="mb-4 border rounded-lg p-3 bg-card">
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1 text-sm font-medium"
-              onClick={() => setPathCollapsed(!pathCollapsed)}
-            >
-              {pathCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
-              <span className="font-medium">Learning Path Visualization</span>
-            </Button>
+        <div className="mb-4 border rounded-lg bg-card overflow-hidden">
+          <div 
+            className="p-3 flex items-center justify-between cursor-pointer"
+            onClick={() => setPathCollapsed(!pathCollapsed)}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {pathCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                <span className="font-medium">Learning Path</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-24 h-2 bg-secondary/20 rounded-full overflow-hidden mr-2">
+                  <div 
+                    className="h-full bg-primary rounded-full" 
+                    style={{ width: `${overallProgress}%` }} 
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">{overallProgress}%</span>
+              </div>
+            </div>
             <CustomPathCreator />
           </div>
-          
+
           <div className={cn(
-            "overflow-hidden transition-all duration-300",
-            pathCollapsed ? "max-h-0" : "max-h-[300px] mt-3"
+            "transition-all duration-300 overflow-hidden",
+            pathCollapsed ? "max-h-0" : "max-h-[400px] border-t p-4"
           )}>
             <VisualLearningPath />
           </div>
