@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useLearning, ChatMessage as ChatMessageType } from '@/contexts/LearningContext';
+import { useLearning, ChatMessage as ChatMessageType,useLearn } from '@/contexts/LearningContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { Check, Save } from 'lucide-react';
@@ -13,12 +13,14 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-  const { updateNotes } = useLearning();
+  const { updateNotes } = useLearn();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [noteContent, setNoteContent] = useState(message.notes || '');
 
   const handleSaveNote = () => {
+    console.log(noteContent);
+    
     updateNotes(message.id, noteContent);
     setIsEditing(false);
   };

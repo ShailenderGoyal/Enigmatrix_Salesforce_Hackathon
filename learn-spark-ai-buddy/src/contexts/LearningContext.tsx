@@ -199,7 +199,7 @@ export const LearningProvider: React.FC<{ children: ReactNode }> = ({ children }
       headers: {
         'Content-Type': 'application/json',
         // Include auth token if required:
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3NzM3OTEzLCJleHAiOjE3NDc3NTU5MTN9.7EvL0l5jCzwi2347WP4mEDKkoeNh_MEIWdhcTIy65sQ`
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3ODI0MDk1LCJleHAiOjE3NDc4NDIwOTV9.DQjAm3_fv5Zyi0ooGz_CI5j7cFFIZirUdhc2lU_TwMc`
       }
     });
     responseContent=res.data.ans;    
@@ -395,4 +395,33 @@ export const useLearning = () => {
     throw new Error('useLearning must be used within a LearningProvider');
   }
   return context;
+};
+
+
+export const useLearn = () => {
+  const updateNotes = async (messageId, content) => {
+   try {
+  const res = await axios.post(
+    'http://localhost:8000/api/notes',
+    {
+      title:"Introduction to Agent Force",
+      content: content,
+      userId: '682c56f24a0b3f3954f1e737',
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZ21haWwuY29tIiwiX2lkIjoiNjgyYzU2ZjI0YTBiM2YzOTU0ZjFlNzM3IiwiaWF0IjoxNzQ3ODI0MDk1LCJleHAiOjE3NDc4NDIwOTV9.DQjAm3_fv5Zyi0ooGz_CI5j7cFFIZirUdhc2lU_TwMc`,
+      },
+    }
+  );
+
+  console.log('Note saved:', res.data);
+  // Optionally update your local state here if needed
+} catch (error) {
+  console.error('Error saving note:', error.response?.data || error.message);
+}
+  };
+
+  return { updateNotes};
 };
